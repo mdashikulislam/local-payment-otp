@@ -3,7 +3,20 @@
     <div class="dashboard-header">
       <div class="header-content">
         <h1 class="dashboard-title">OTP Messages</h1>
-        <span class="message-count">{{ otpList.length }} Messages</span>
+        <div class="header-actions">
+          <span class="message-count">{{ otpList.length }} Messages</span>
+          <button 
+            v-if="otpList.length > 0"
+            class="delete-all-btn"
+            @click="deleteAllMessages"
+          >
+            <svg class="delete-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
+            Delete All
+          </button>
+        </div>
       </div>
     </div>
     <div class="otp-container">
@@ -71,6 +84,19 @@ const copyToClipboard = async (otp, id) => {
     }, 2000)
   } catch (err) {
     console.error('Failed to copy:', err)
+  }
+}
+
+const deleteAllMessages = async () => {
+  if (!confirm('Are you sure you want to delete all messages?')) {
+    return
+  }
+  try {
+    await api.delete('/otps')
+    otpList.value = []
+  } catch (err) {
+    console.error('Failed to delete messages:', err)
+    alert('Failed to delete messages')
   }
 }
 
@@ -148,6 +174,36 @@ onMounted(() => {
   border-radius: 12px;
   font-size: 0.8rem;
   font-weight: 500;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.delete-all-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: none;
+  background: #dc2626;
+  color: #fff;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.delete-all-btn:hover {
+  background: #b91c1c;
+}
+
+.delete-icon {
+  width: 14px;
+  height: 14px;
 }
 
 .otp-container {

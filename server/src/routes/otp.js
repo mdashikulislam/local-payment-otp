@@ -46,6 +46,22 @@ function extractOTP(message) {
     return null;
 }
 
+router.delete('/otps', async (req, res) => {
+    try {
+        await pool.execute('DELETE FROM otps');
+        return res.json({
+            success: true,
+            message: 'All OTP messages deleted successfully'
+        });
+    } catch (error) {
+        console.error('Error deleting OTPs:', error.message);
+        return res.status(500).json({
+            success: false,
+            error: 'Internal server error while deleting OTPs'
+        });
+    }
+});
+
 router.post('/get-otp', async (req, res) => {
     try {
         const { sender, message } = req.body;
