@@ -2,6 +2,24 @@ const express = require('express');
 const router = express.Router();
 const { pool } = require('../config/db');
 
+router.get('/otps', async (req, res) => {
+    try {
+        const [rows] = await pool.execute(
+            'SELECT id, sender, message, otp, created_at FROM otps ORDER BY created_at DESC LIMIT 50'
+        );
+        return res.json({
+            success: true,
+            otps: rows
+        });
+    } catch (error) {
+        console.error('Error fetching OTPs:', error.message);
+        return res.status(500).json({
+            success: false,
+            error: 'Internal server error while fetching OTPs'
+        });
+    }
+});
+
 function extractOTP(message) {
     const patterns = [
         { regex: /verification code is (\d{6})/i, type: 'bKash' },
