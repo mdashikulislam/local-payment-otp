@@ -65,13 +65,27 @@ import api from '../services/api'
 
 const otpList = ref([])
 const copiedId = ref(null)
+const newMessageIds = ref(new Set())
 
 const fetchOTPs = async () => {
   try {
     const { data } = await api.get('/otps')
-    otpList.value = data.otps || []
+    const newOtps = data.otps || []
+    
+    const existingIds = new Set(otpList.value.map(o => o.id))
+    const hasNewMessages = newOtps.some(o => !existingIds.has(o.id))
+    
+    if (hasNewMessages) {
+      const newIds = newOtps.filter(o => !existingIds.has(o.id)).map(o => o.id)
+      newIds.forEach(id => newMessageIds.value.add(id))
+      setTimeout(() => {
+        newIds.forEach(id => newMessageIds.value.delete(id))
+      }, 3000)
+    }
+    
+    otpList.value = newOtps
   } catch (err) {
-    otpList.value = []
+    console.error('Failed to fetch OTPs:', err)
   }
 }
 
@@ -134,7 +148,7 @@ const formatTime = (timestamp) => {
 
 onMounted(() => {
   fetchOTPs()
-  setInterval(fetchOTPs, 5000)
+  setInterval(fetchOTPs, 2000)
 })
 </script>
 
@@ -219,6 +233,25 @@ onMounted(() => {
   border-radius: 8px;
   padding: 14px 16px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  border-left: 4px solid transparent;
+}
+
+.otp-card.new-message {
+  border-left-color: #10b981;
+  background: #f0fdf4;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .card-header-row {
