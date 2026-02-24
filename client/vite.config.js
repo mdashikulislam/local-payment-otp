@@ -5,11 +5,14 @@ import vue from '@vitejs/plugin-vue'
 export default defineConfig({
   plugins: [vue()],
   server: {
+    host: true,
+    port: 4051,
+    allowedHosts: true,   // ← easiest and safest for dev tunnel
     proxy: {
       '/api': {
-        target: 'http://118.179.76.17:4050',
+        target: 'http://localhost:4050',
         changeOrigin: true,
       },
     },
-  },
+  }
 })

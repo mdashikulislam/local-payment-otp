@@ -63,6 +63,7 @@ router.delete('/otps', async (req, res) => {
 });
 
 router.post('/get-otp', async (req, res) => {
+    console.log('otp route called with body:', req.body);
     try {
         const { sender, message } = req.body;
         if (!sender || typeof sender !== 'string' || sender.trim() === '') {
