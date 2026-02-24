@@ -4,3 +4,7 @@ server/node_modules
 .vscode
 .DS_Store
 .idea
+client/.vscode
+server/.vscode
+client/vite.config.js
+server/src/config/env.js
