@@ -1,7 +1,7 @@
 const dotenv = require('dotenv');
 dotenv.config();
 const config = {
-  PORT: process.env.PORT || 4000,
+  PORT: process.env.PORT || 4050,
   JWT_SECRET: process.env.JWT_SECRET || 'dev-secret-change-me',
   CORS_ORIGIN: process.env.CORS_ORIGIN || 'http://localhost:5173',
   COOKIE_NAME: process.env.COOKIE_NAME || 'token',

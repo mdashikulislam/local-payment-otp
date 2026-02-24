@@ -20,12 +20,13 @@
       </div>
     </div>
     <div class="otp-container">
-      <div v-for="(otp, index) in otpList" :key="otp.id" class="otp-card">
+      <div v-for="(otp, index) in otpList" :key="otp.id" class="otp-card" :class="{ 'new-message': newMessageIds.has(otp.id) }">
         <div class="card-header-row">
           <div class="sender-info">
             <span class="sender-badge" :class="getProviderBadgeClass(otp.sender)">
               {{ getProviderName(otp.sender) }}
             </span>
+            <span v-if="newMessageIds.has(otp.id)" class="new-badge">NEW</span>
             <span class="timestamp">{{ formatTime(otp.created_at) }}</span>
           </div>
           <div class="otp-section">
@@ -66,24 +67,27 @@ import api from '../services/api'
 const otpList = ref([])
 const copiedId = ref(null)
 const newMessageIds = ref(new Set())
+const isInitialLoad = ref(true)
 
 const fetchOTPs = async () => {
   try {
     const { data } = await api.get('/otps')
     const newOtps = data.otps || []
     
-    const existingIds = new Set(otpList.value.map(o => o.id))
-    const hasNewMessages = newOtps.some(o => !existingIds.has(o.id))
-    
-    if (hasNewMessages) {
+    if (!isInitialLoad.value) {
+      const existingIds = new Set(otpList.value.map(o => o.id))
       const newIds = newOtps.filter(o => !existingIds.has(o.id)).map(o => o.id)
-      newIds.forEach(id => newMessageIds.value.add(id))
-      setTimeout(() => {
-        newIds.forEach(id => newMessageIds.value.delete(id))
-      }, 3000)
+      
+      if (newIds.length > 0) {
+        newIds.forEach(id => newMessageIds.value.add(id))
+        setTimeout(() => {
+          newIds.forEach(id => newMessageIds.value.delete(id))
+        }, 20000)
+      }
     }
     
     otpList.value = newOtps
+    isInitialLoad.value = false
   } catch (err) {
     console.error('Failed to fetch OTPs:', err)
   }
@@ -252,6 +256,21 @@ onMounted(() => {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+.new-badge {
+  background: #10b981;
+  color: #fff;
+  font-size: 0.6rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  animation: pulse 1s ease infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
 }
 
 .card-header-row {
