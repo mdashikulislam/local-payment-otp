@@ -164,8 +164,10 @@ onMounted(() => {
 }
 
 .dashboard-header {
-  width: 80%;
-  margin: 0 auto 16px;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto 12px;
+  padding: 0 12px;
 }
 
 .header-content {
@@ -225,17 +227,19 @@ onMounted(() => {
 }
 
 .otp-container {
-  width: 80%;
+  width: 100%;
+  max-width: 1200px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
+  padding: 0 12px;
 }
 
 .otp-card {
   background: #fff;
   border-radius: 8px;
-  padding: 14px 16px;
+  padding: 10px 14px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
   border-left: 4px solid transparent;
@@ -277,19 +281,20 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 5px;
 }
 
 .sender-info {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .sender-badge {
-  padding: 4px 10px;
+  padding: 3px 8px;
   border-radius: 4px;
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -304,20 +309,20 @@ onMounted(() => {
 
 .timestamp {
   color: #9ca3af;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
 }
 
 .otp-section {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .otp-code {
   color: #dc2626;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: 700;
-  letter-spacing: 3px;
+  letter-spacing: 2px;
   font-family: 'SF Mono', Monaco, monospace;
 }
 
@@ -326,11 +331,11 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border: none;
   background: #f3f4f6;
-  border-radius: 6px;
+  border-radius: 5px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -344,8 +349,8 @@ onMounted(() => {
 }
 
 .copy-icon {
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
   color: #6b7280;
 }
 
@@ -394,14 +399,14 @@ onMounted(() => {
   background: #f9fafb;
   border: 1px solid #e5e7eb;
   border-radius: 6px;
-  padding: 12px;
+  padding: 8px 10px;
 }
 
 .message-block code {
   display: block;
   color: #374151;
-  font-size: 0.85rem;
-  line-height: 1.5;
+  font-size: 0.8rem;
+  line-height: 1.4;
   font-family: inherit;
   white-space: pre-wrap;
   word-break: break-word;
@@ -423,15 +428,78 @@ onMounted(() => {
 }
 
 @media (max-width: 640px) {
-  .card-header-row {
+  .dashboard-wrapper {
+    padding: 12px 0;
+  }
+
+  .dashboard-header {
+    padding: 0 12px;
+    margin-bottom: 10px;
+  }
+
+  .header-content {
     flex-wrap: wrap;
     gap: 10px;
+    padding: 10px 14px;
   }
-  
-  .otp-box {
-    order: -1;
-    width: 100%;
-    justify-content: space-between;
+
+  .dashboard-title {
+    font-size: 1.1rem;
+  }
+
+  .otp-container {
+    padding: 0 12px;
+    gap: 6px;
+  }
+
+  .otp-card {
+    padding: 8px 12px;
+  }
+
+  .card-header-row {
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+    padding-bottom: 6px;
+  }
+
+  .sender-info {
+    gap: 6px;
+  }
+
+  .otp-section {
+    width: auto;
+    justify-content: flex-end;
+    padding-top: 0;
+    gap: 6px;
+  }
+
+  .otp-code {
+    font-size: 1rem;
+    letter-spacing: 1px;
+  }
+
+  .message-block {
+    padding: 8px;
+  }
+
+  .message-block code {
+    font-size: 0.75rem;
+    line-height: 1.4;
+  }
+
+  .delete-all-btn {
+    padding: 5px 10px;
+    font-size: 0.75rem;
+  }
+
+  .delete-all-btn span {
+    display: none;
+  }
+
+  .header-actions {
+    gap: 8px;
   }
 }
 </style>
