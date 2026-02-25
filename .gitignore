@@ -1,6 +1,10 @@
 node_modules
 client/node_modules
 server/node_modules
-.idea
 .vscode
 .DS_Store
+.idea
+client/.vscode
+server/.vscode
+client/vite.config.js
+server/src/config/env.js
