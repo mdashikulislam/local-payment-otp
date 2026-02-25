@@ -5,7 +5,7 @@
         <h1 class="dashboard-title">OTP Messages</h1>
         <div class="header-actions">
           <span class="message-count">{{ otpList.length }} Messages</span>
-          <button 
+          <button
             v-if="otpList.length > 0"
             class="delete-all-btn"
             @click="deleteAllMessages"
@@ -15,6 +15,14 @@
               <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
             </svg>
             Delete All
+          </button>
+          <button class="logout-btn" @click="handleLogout">
+            <svg class="logout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+            Logout
           </button>
         </div>
       </div>
@@ -62,7 +70,12 @@
 
 <script setup>
 import { onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '../stores/auth'
 import api from '../services/api'
+
+const router = useRouter()
+const authStore = useAuthStore()
 
 const otpList = ref([])
 const copiedId = ref(null)
@@ -143,11 +156,16 @@ const getProviderBadgeClass = (sender) => {
 const formatTime = (timestamp) => {
   if (!timestamp) return ''
   const date = new Date(timestamp)
-  return date.toLocaleTimeString('en-US', { 
-    hour: '2-digit', 
+  return date.toLocaleTimeString('en-US', {
+    hour: '2-digit',
     minute: '2-digit',
-    hour12: true 
+    hour12: true
   })
+}
+
+const handleLogout = () => {
+  authStore.logout()
+  router.push('/login')
 }
 
 onMounted(() => {
@@ -222,6 +240,30 @@ onMounted(() => {
 }
 
 .delete-icon {
+  width: 14px;
+  height: 14px;
+}
+
+.logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: none;
+  background: #6b7280;
+  color: #fff;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.logout-btn:hover {
+  background: #4b5563;
+}
+
+.logout-icon {
   width: 14px;
   height: 14px;
 }

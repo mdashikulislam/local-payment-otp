@@ -1,12 +1,12 @@
 const config = {
     PORT: 4050,
-    JWT_SECRET: 'dev-secret-change-me', // Change this to your actual secret
-    CORS_ORIGIN: 'http://localhost:5173', // Update this to your production domain
+    JWT_SECRET: 'OTP-Secure-JWT-Key-2024-Local-Development-Only-Change-For-Production',
+    CORS_ORIGIN: 'http://localhost:5173',
     COOKIE_NAME: 'token',
     JWT_EXPIRES_IN: '1h',
-    DB_HOST: 'localhost', // Use 127.0.0.1 instead of localhost for better stability on macOS
+    DB_HOST: 'localhost',
     DB_USER: 'root',
-    DB_PASSWORD: '', // Ensure this matches your local MySQL password
+    DB_PASSWORD: '',
     DB_NAME: 'otp_db',
     DB_PORT: 3306,
 };
