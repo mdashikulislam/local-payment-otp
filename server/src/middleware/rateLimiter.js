@@ -1,6 +1,6 @@
 const loginAttempts = new Map();
 
-const MAX_ATTEMPTS = 5;
+const MAX_ATTEMPTS = 10;
 const WINDOW_MS = 15 * 60 * 1000;
 const BLOCK_DURATION_MS = 30 * 60 * 1000;
 
