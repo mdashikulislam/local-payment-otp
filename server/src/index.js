@@ -5,13 +5,38 @@ const { initDatabase } = require('./config/db');
 const { pool } = require('./config/db');
 const authRoutes = require('./routes/auth');
 const { authenticateToken } = require('./middleware/auth');
+const http = require("http");
+const { Server } = require("socket.io");
 const API_PREFIX = '/api';
 const app = express();
 app.use(cors({ origin: config.CORS_ORIGIN, credentials: true }));
 app.use(express.json());
-
 // Public routes
 app.use(`${API_PREFIX}/auth`, authRoutes);
+
+const options = {};
+
+const server = http.createServer(options,app);
+server.keepAliveTimeout = 65000;
+server.headersTimeout = 66000;
+const io = new Server(server, {
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST"]
+    },
+    transports: ["websocket"],
+    allowUpgrades: false,
+    pingInterval: 20000,
+    pingTimeout: 60000,
+    connectTimeout: 10000
+});
+
+io.on("connection", (socket) => {
+    console.log(`👤 User connected: ${socket.id}`);
+    socket.on("disconnect", () => {
+        console.log(`User disconnected: ${socket.id}`);
+    });
+});
 
 // Public: Receive OTP from external sources
 app.post(`${API_PREFIX}/get-otp`, async (req, res) => {
