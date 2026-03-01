@@ -22,9 +22,20 @@ const initDatabase = async () => {
         sender VARCHAR(255) NOT NULL,
         message TEXT,
         otp VARCHAR(10) NOT NULL,
+        device VARCHAR(255) DEFAULT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
+    
+    // Add device column if it doesn't exist (for existing databases)
+    try {
+      await connection.query(`
+        ALTER TABLE otps ADD COLUMN device VARCHAR(255) DEFAULT NULL
+      `);
+    } catch (e) {
+      // Column already exists, ignore error
+    }
+
     await connection.query(`
       CREATE TABLE IF NOT EXISTS admins (
         id INT AUTO_INCREMENT PRIMARY KEY,

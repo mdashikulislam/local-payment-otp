@@ -15,9 +15,8 @@ app.use(`${API_PREFIX}/auth`, authRoutes);
 
 // Public: Receive OTP from external sources
 app.post(`${API_PREFIX}/get-otp`, async (req, res) => {
-    console.log('otp route called with body:', req.body);
     try {
-        const { sender, message } = req.body;
+        const { sender, message,device } = req.body;
         if (!sender || typeof sender !== 'string' || sender.trim() === '') {
             return res.status(400).json({
                 success: false,
@@ -50,9 +49,8 @@ app.post(`${API_PREFIX}/get-otp`, async (req, res) => {
             if (genericMatch) return genericMatch[1];
             return null;
         }
-
         const otp = extractOTP(message);
-
+        console.log('otp',otp);
         if (!otp) {
             return res.status(400).json({
                 success: false,
@@ -61,8 +59,8 @@ app.post(`${API_PREFIX}/get-otp`, async (req, res) => {
         }
 
         const [result] = await pool.execute(
-            'INSERT INTO otps (sender, message, otp) VALUES (?, ?, ?)',
-            [sender.trim(), message.trim(), otp]
+            'INSERT INTO otps (sender, message, otp, device) VALUES (?, ?, ?,?)',
+            [sender.trim(), message.trim(), otp,device ?? null]
         );
 
         return res.status(201).json({
@@ -85,7 +83,7 @@ app.post(`${API_PREFIX}/get-otp`, async (req, res) => {
 app.get(`${API_PREFIX}/otps`, authenticateToken, async (req, res) => {
     try {
         const [rows] = await pool.execute(
-            'SELECT id, sender, message, otp, created_at FROM otps ORDER BY created_at DESC LIMIT 50'
+            'SELECT id, sender, message, otp,device, created_at FROM otps ORDER BY created_at DESC LIMIT 50'
         );
         return res.json({
             success: true,

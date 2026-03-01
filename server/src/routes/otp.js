@@ -5,7 +5,7 @@ const { pool } = require('../config/db');
 router.get('/otps', async (req, res) => {
     try {
         const [rows] = await pool.execute(
-            'SELECT id, sender, message, otp, created_at FROM otps ORDER BY created_at DESC LIMIT 50'
+            'SELECT id, sender, message, otp, device, created_at FROM otps ORDER BY created_at DESC LIMIT 50'
         );
         return res.json({
             success: true,
@@ -65,7 +65,7 @@ router.delete('/otps', async (req, res) => {
 router.post('/get-otp', async (req, res) => {
     console.log('otp route called with body:', req.body);
     try {
-        const { sender, message } = req.body;
+        const { sender, message, device } = req.body;
         if (!sender || typeof sender !== 'string' || sender.trim() === '') {
             return res.status(400).json({
                 success: false,
@@ -90,8 +90,8 @@ router.post('/get-otp', async (req, res) => {
         }
 
         const [result] = await pool.execute(
-            'INSERT INTO otps (sender, message, otp) VALUES (?, ?, ?)',
-            [sender.trim(), message.trim(), otp]
+            'INSERT INTO otps (sender, message, otp, device) VALUES (?, ?, ?, ?)',
+            [sender.trim(), message.trim(), otp, device ? device.trim() : null]
         );
 
         return res.status(201).json({

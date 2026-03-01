@@ -36,6 +36,13 @@
             </span>
             <span v-if="newMessageIds.has(otp.id)" class="new-badge">NEW</span>
             <span class="timestamp">{{ formatTime(otp.created_at) }}</span>
+            <span v-if="otp.device" class="device-badge">
+              <svg class="device-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                <line x1="12" y1="18" x2="12.01" y2="18"></line>
+              </svg>
+              {{ otp.device }}
+            </span>
           </div>
           <div class="otp-section">
             <span class="otp-code">{{ otp.otp }}</span>
@@ -86,7 +93,6 @@ const fetchOTPs = async () => {
   try {
     const { data } = await api.get('/otps')
     const newOtps = data.otps || []
-    
     if (!isInitialLoad.value) {
       const existingIds = new Set(otpList.value.map(o => o.id))
       const newIds = newOtps.filter(o => !existingIds.has(o.id)).map(o => o.id)
@@ -352,6 +358,23 @@ onMounted(() => {
 .timestamp {
   color: #9ca3af;
   font-size: 0.7rem;
+}
+
+.device-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #e0e7ff;
+  color: #4338ca;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  font-weight: 500;
+}
+
+.device-icon {
+  width: 12px;
+  height: 12px;
 }
 
 .otp-section {
