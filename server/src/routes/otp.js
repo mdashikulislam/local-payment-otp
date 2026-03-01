@@ -1,24 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { pool } = require('../config/db');
-
-router.get('/otps', async (req, res) => {
-    try {
-        const [rows] = await pool.execute(
-            'SELECT id, sender, message, otp, created_at FROM otps ORDER BY created_at DESC LIMIT 50'
-        );
-        return res.json({
-            success: true,
-            otps: rows
-        });
-    } catch (error) {
-        console.error('Error fetching OTPs:', error.message);
-        return res.status(500).json({
-            success: false,
-            error: 'Internal server error while fetching OTPs'
-        });
-    }
-});
+const { authenticateToken } = require('../middleware/auth');
 
 function extractOTP(message) {
     const patterns = [
@@ -46,26 +29,10 @@ function extractOTP(message) {
     return null;
 }
 
-router.delete('/otps', async (req, res) => {
-    try {
-        await pool.execute('DELETE FROM otps');
-        return res.json({
-            success: true,
-            message: 'All OTP messages deleted successfully'
-        });
-    } catch (error) {
-        console.error('Error deleting OTPs:', error.message);
-        return res.status(500).json({
-            success: false,
-            error: 'Internal server error while deleting OTPs'
-        });
-    }
-});
-
+// Public: Receive OTP from external sources
 router.post('/get-otp', async (req, res) => {
-    console.log('otp route called with body:', req.body);
     try {
-        const { sender, message } = req.body;
+        const { sender, message, device } = req.body;
         if (!sender || typeof sender !== 'string' || sender.trim() === '') {
             return res.status(400).json({
                 success: false,
@@ -90,8 +57,8 @@ router.post('/get-otp', async (req, res) => {
         }
 
         const [result] = await pool.execute(
-            'INSERT INTO otps (sender, message, otp) VALUES (?, ?, ?)',
-            [sender.trim(), message.trim(), otp]
+            'INSERT INTO otps (sender, message, otp, device) VALUES (?, ?, ?, ?)',
+            [sender.trim(), message.trim(), otp, device ? device.trim() : null]
         );
 
         return res.status(201).json({
@@ -106,6 +73,42 @@ router.post('/get-otp', async (req, res) => {
         return res.status(500).json({
             success: false,
             error: 'Internal server error while storing OTP'
+        });
+    }
+});
+
+// Protected: Get all OTPs
+router.get('/otps', authenticateToken, async (req, res) => {
+    try {
+        const [rows] = await pool.execute(
+            'SELECT id, sender, message, otp, device, created_at FROM otps ORDER BY created_at DESC LIMIT 50'
+        );
+        return res.json({
+            success: true,
+            otps: rows
+        });
+    } catch (error) {
+        console.error('Error fetching OTPs:', error.message);
+        return res.status(500).json({
+            success: false,
+            error: 'Internal server error while fetching OTPs'
+        });
+    }
+});
+
+// Protected: Delete all OTPs
+router.delete('/otps', authenticateToken, async (req, res) => {
+    try {
+        await pool.execute('DELETE FROM otps');
+        return res.json({
+            success: true,
+            message: 'All OTP messages deleted successfully'
+        });
+    } catch (error) {
+        console.error('Error deleting OTPs:', error.message);
+        return res.status(500).json({
+            success: false,
+            error: 'Internal server error while deleting OTPs'
         });
     }
 });

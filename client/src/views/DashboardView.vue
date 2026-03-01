@@ -5,7 +5,7 @@
         <h1 class="dashboard-title">OTP Messages</h1>
         <div class="header-actions">
           <span class="message-count">{{ otpList.length }} Messages</span>
-          <button 
+          <button
             v-if="otpList.length > 0"
             class="delete-all-btn"
             @click="deleteAllMessages"
@@ -15,6 +15,14 @@
               <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
             </svg>
             Delete All
+          </button>
+          <button class="logout-btn" @click="handleLogout">
+            <svg class="logout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+            Logout
           </button>
         </div>
       </div>
@@ -28,6 +36,13 @@
             </span>
             <span v-if="newMessageIds.has(otp.id)" class="new-badge">NEW</span>
             <span class="timestamp">{{ formatTime(otp.created_at) }}</span>
+            <span v-if="otp.device" class="device-badge">
+              <svg class="device-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                <line x1="12" y1="18" x2="12.01" y2="18"></line>
+              </svg>
+              {{ otp.device }}
+            </span>
           </div>
           <div class="otp-section">
             <span class="otp-code">{{ otp.otp }}</span>
@@ -62,7 +77,12 @@
 
 <script setup>
 import { onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '../stores/auth'
 import api from '../services/api'
+
+const router = useRouter()
+const authStore = useAuthStore()
 
 const otpList = ref([])
 const copiedId = ref(null)
@@ -73,7 +93,6 @@ const fetchOTPs = async () => {
   try {
     const { data } = await api.get('/otps')
     const newOtps = data.otps || []
-    
     if (!isInitialLoad.value) {
       const existingIds = new Set(otpList.value.map(o => o.id))
       const newIds = newOtps.filter(o => !existingIds.has(o.id)).map(o => o.id)
@@ -143,11 +162,16 @@ const getProviderBadgeClass = (sender) => {
 const formatTime = (timestamp) => {
   if (!timestamp) return ''
   const date = new Date(timestamp)
-  return date.toLocaleTimeString('en-US', { 
-    hour: '2-digit', 
+  return date.toLocaleTimeString('en-US', {
+    hour: '2-digit',
     minute: '2-digit',
-    hour12: true 
+    hour12: true
   })
+}
+
+const handleLogout = () => {
+  authStore.logout()
+  router.push('/login')
 }
 
 onMounted(() => {
@@ -164,8 +188,10 @@ onMounted(() => {
 }
 
 .dashboard-header {
-  width: 80%;
-  margin: 0 auto 16px;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto 12px;
+  padding: 0 12px;
 }
 
 .header-content {
@@ -224,18 +250,44 @@ onMounted(() => {
   height: 14px;
 }
 
+.logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: none;
+  background: #6b7280;
+  color: #fff;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.logout-btn:hover {
+  background: #4b5563;
+}
+
+.logout-icon {
+  width: 14px;
+  height: 14px;
+}
+
 .otp-container {
-  width: 80%;
+  width: 100%;
+  max-width: 1200px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
+  padding: 0 12px;
 }
 
 .otp-card {
   background: #fff;
   border-radius: 8px;
-  padding: 14px 16px;
+  padding: 10px 14px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
   border-left: 4px solid transparent;
@@ -277,19 +329,20 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 5px;
 }
 
 .sender-info {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .sender-badge {
-  padding: 4px 10px;
+  padding: 3px 8px;
   border-radius: 4px;
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -304,20 +357,37 @@ onMounted(() => {
 
 .timestamp {
   color: #9ca3af;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
+}
+
+.device-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #e0e7ff;
+  color: #4338ca;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  font-weight: 500;
+}
+
+.device-icon {
+  width: 12px;
+  height: 12px;
 }
 
 .otp-section {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .otp-code {
   color: #dc2626;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: 700;
-  letter-spacing: 3px;
+  letter-spacing: 2px;
   font-family: 'SF Mono', Monaco, monospace;
 }
 
@@ -326,11 +396,11 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border: none;
   background: #f3f4f6;
-  border-radius: 6px;
+  border-radius: 5px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -344,8 +414,8 @@ onMounted(() => {
 }
 
 .copy-icon {
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
   color: #6b7280;
 }
 
@@ -394,14 +464,14 @@ onMounted(() => {
   background: #f9fafb;
   border: 1px solid #e5e7eb;
   border-radius: 6px;
-  padding: 12px;
+  padding: 8px 10px;
 }
 
 .message-block code {
   display: block;
   color: #374151;
-  font-size: 0.85rem;
-  line-height: 1.5;
+  font-size: 0.8rem;
+  line-height: 1.4;
   font-family: inherit;
   white-space: pre-wrap;
   word-break: break-word;
@@ -423,15 +493,78 @@ onMounted(() => {
 }
 
 @media (max-width: 640px) {
-  .card-header-row {
+  .dashboard-wrapper {
+    padding: 12px 0;
+  }
+
+  .dashboard-header {
+    padding: 0 12px;
+    margin-bottom: 10px;
+  }
+
+  .header-content {
     flex-wrap: wrap;
     gap: 10px;
+    padding: 10px 14px;
   }
-  
-  .otp-box {
-    order: -1;
-    width: 100%;
-    justify-content: space-between;
+
+  .dashboard-title {
+    font-size: 1.1rem;
+  }
+
+  .otp-container {
+    padding: 0 12px;
+    gap: 6px;
+  }
+
+  .otp-card {
+    padding: 8px 12px;
+  }
+
+  .card-header-row {
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+    padding-bottom: 6px;
+  }
+
+  .sender-info {
+    gap: 6px;
+  }
+
+  .otp-section {
+    width: auto;
+    justify-content: flex-end;
+    padding-top: 0;
+    gap: 6px;
+  }
+
+  .otp-code {
+    font-size: 1rem;
+    letter-spacing: 1px;
+  }
+
+  .message-block {
+    padding: 8px;
+  }
+
+  .message-block code {
+    font-size: 0.75rem;
+    line-height: 1.4;
+  }
+
+  .delete-all-btn {
+    padding: 5px 10px;
+    font-size: 0.75rem;
+  }
+
+  .delete-all-btn span {
+    display: none;
+  }
+
+  .header-actions {
+    gap: 8px;
   }
 }
 </style>
