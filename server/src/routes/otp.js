@@ -4,29 +4,48 @@ const { pool } = require('../config/db');
 const { authenticateToken } = require('../middleware/auth');
 
 function extractOTP(message) {
+    if (!message) return null;
+
+    // Normalize message
+    const text = message.replace(/\s+/g, ' ').trim();
+
     const patterns = [
-        { regex: /verification code is (\d{6})/i, type: 'bKash' },
-        { regex: /OTP for Nagad.*is (\d{6})/i, type: 'Nagad' },
-        { regex: /OTP for e-com transaction.*(\d{6})/i, type: 'Card' },
-        { regex: /One-Time-Password \(OTP\).*?(\d{6})/i, type: 'Generic' },
-        { regex: /Your OTP is: (\d{4,6})/i, type: 'Card Transaction' },
-        { regex: /\b(\d{6})\b.*(?:OTP|One-Time-Password|verification code)/i, type: 'Fallback' },
-        { regex: /(?:OTP|One-Time-Password).*?\b(\d{4,6})\b/i, type: 'Fallback2' }
+        // bKash
+        { regex: /verification code is\s*(\d{6})/i },
+
+        // Nagad ECOM
+        { regex: /OTP\s*for\s*Nagad.*?\b(\d{6})\b/i },
+
+        // Debit/Credit Card e-com
+        { regex: /is your OTP for e-?com transaction.*?\b(\d{6})\b/i },
+
+        // Generic "XXXX is your OTP"
+        { regex: /\b(\d{4,6})\b\s*is your (?:One-Time-Password|OTP)/i },
+
+        // "Your OTP is: XXXX"
+        { regex: /Your OTP\s*(?:is|:)\s*(\d{4,6})/i },
+
+        // IVACBD specific
+        { regex: /use OTP[:\s]*\s*(\d{4,6})/i },
+
+        // Rocket
+        { regex: /security code.*?\b(\d{6})\b/i },
+
+        // Fallback: number near OTP word
+        { regex: /(?:OTP|One-Time-Password|verification code).*?\b(\d{4,6})\b/i },
+
+        // Reverse fallback: number before OTP word
+        { regex: /\b(\d{4,6})\b.*?(?:OTP|One-Time-Password|verification code)/i }
     ];
 
-    for (const pattern of patterns) {
-        const match = message.match(pattern.regex);
+    for (const { regex } of patterns) {
+        const match = text.match(regex);
         if (match) {
             return match[1];
         }
     }
 
-    const genericMatch = message.match(/\b(\d{4,6})\b/);
-    if (genericMatch) {
-        return genericMatch[1];
-    }
-
-    return null;
+    return null; // Avoid unsafe generic fallback
 }
 
 // Public: Receive OTP from external sources
