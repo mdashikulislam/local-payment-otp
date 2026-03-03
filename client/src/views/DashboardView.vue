@@ -154,7 +154,8 @@ const getProviderBadgeClass = (sender) => {
     'NAGAD': 'badge-nagad',
     'NRB BANK': 'badge-nrb',
     'DBBL': 'badge-dbbl',
-    'upay': 'badge-upay'
+    'upay': 'badge-upay',
+    'EBL': 'badge-ebl',
   }
   return classes[name] || 'badge-default'
 }
@@ -353,6 +354,7 @@ onMounted(() => {
 .badge-nrb { background: #00a8e8; color: #fff; }
 .badge-dbbl { background: #10b981; color: #fff; }
 .badge-upay { background: #6366f1; color: #fff; }
+.badge-ebl { background: coral; color: #fff; }
 .badge-default { background: #e5e7eb; color: #6b7280; }
 
 .timestamp {
