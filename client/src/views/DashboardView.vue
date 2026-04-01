@@ -28,7 +28,7 @@
       </div>
     </div>
     <div class="otp-container">
-      <div v-for="(otp, index) in otpList" :key="otp.id" class="otp-card" :class="{ 'new-message': newMessageIds.has(otp.id) }">
+      <div v-for="(otp, index) in otpList" :key="otp.id" class="otp-card" :class="{ 'new-message': newMessageIds.has(otp.id), 'card-copied': copiedCardIds.has(otp.id) }">
         <div class="card-header-row">
           <div class="sender-info">
             <span class="sender-badge" :class="getProviderBadgeClass(otp.sender)">
@@ -86,6 +86,7 @@ const authStore = useAuthStore()
 
 const otpList = ref([])
 const copiedId = ref(null)
+const copiedCardIds = ref(new Set(JSON.parse(localStorage.getItem('copiedCardIds') || '[]')))
 const newMessageIds = ref(new Set())
 const isInitialLoad = ref(true)
 
@@ -116,6 +117,8 @@ const copyToClipboard = async (otp, id) => {
   try {
     await navigator.clipboard.writeText(otp)
     copiedId.value = id
+    copiedCardIds.value = new Set([...copiedCardIds.value, id])
+    localStorage.setItem('copiedCardIds', JSON.stringify([...copiedCardIds.value]))
     setTimeout(() => {
       copiedId.value = null
     }, 2000)
@@ -298,6 +301,12 @@ onMounted(() => {
   border-left-color: #10b981;
   background: #f0fdf4;
   animation: slideIn 0.3s ease;
+}
+
+.otp-card.card-copied {
+  border-left-color: #f59e0b;
+  background: #fffbeb;
+  transition: background 0.4s ease, border-left-color 0.4s ease;
 }
 
 @keyframes slideIn {
